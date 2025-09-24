@@ -23,6 +23,21 @@ if DISABLE_SSL_VERIFY:
 class AzureDevOpsClient:
     """Azure DevOps REST API client using requests"""
     
+    def _handle_request_exceptions(self, e: Exception) -> None:
+        """Centralized exception handling for requests"""
+        if isinstance(e, requests.exceptions.SSLError):
+            raise Exception(f"SSL Error: {str(e)}. Try installing/updating certificates or set AZURE_DEVOPS_DISABLE_SSL_VERIFY=true for debugging (insecure)")
+        elif isinstance(e, requests.exceptions.ProxyError):
+            raise Exception(f"Proxy Error: {str(e)}. Check your proxy settings (HTTP_PROXY, HTTPS_PROXY)")
+        elif isinstance(e, requests.exceptions.ConnectionError):
+            raise Exception(f"Connection Error: {str(e)}. Check your network connection")
+        elif isinstance(e, requests.exceptions.Timeout):
+            raise Exception(f"Request timed out after {self.timeout} seconds")
+        elif isinstance(e, requests.exceptions.HTTPError):
+            raise Exception(f"HTTP Error {e.response.status_code}: {e.response.text}")
+        else:
+            raise Exception(f"Unexpected error: {str(e)}")
+    
     def __init__(self, organization: str, project: str, pat: str):
         self.organization = organization
         self.project = project
@@ -129,18 +144,8 @@ class AzureDevOpsClient:
             details_result = details_response.json()
             return details_result.get("value", [])
             
-        except requests.exceptions.SSLError as e:
-            raise Exception(f"SSL Error: {str(e)}. Try installing/updating certificates or set AZURE_DEVOPS_DISABLE_SSL_VERIFY=true for debugging (insecure)")
-        except requests.exceptions.ProxyError as e:
-            raise Exception(f"Proxy Error: {str(e)}. Check your proxy settings (HTTP_PROXY, HTTPS_PROXY)")
-        except requests.exceptions.ConnectionError as e:
-            raise Exception(f"Connection Error: {str(e)}. Check your network connection")
-        except requests.exceptions.Timeout:
-            raise Exception(f"Request timed out after {self.timeout} seconds")
-        except requests.exceptions.HTTPError as e:
-            raise Exception(f"HTTP Error {e.response.status_code}: {e.response.text}")
         except Exception as e:
-            raise Exception(f"Unexpected error: {str(e)}")
+            self._handle_request_exceptions(e)
     
     def get_work_item_by_id(self, work_item_id: int) -> Optional[Dict[str, Any]]:
         """Fetch a specific work item by ID"""
@@ -157,20 +162,12 @@ class AzureDevOpsClient:
             response.raise_for_status()
             return response.json()
             
-        except requests.exceptions.SSLError as e:
-            raise Exception(f"SSL Error: {str(e)}. Try installing/updating certificates or set AZURE_DEVOPS_DISABLE_SSL_VERIFY=true for debugging (insecure)")
-        except requests.exceptions.ProxyError as e:
-            raise Exception(f"Proxy Error: {str(e)}. Check your proxy settings")
-        except requests.exceptions.ConnectionError as e:
-            raise Exception(f"Connection Error: {str(e)}. Check your network connection")
-        except requests.exceptions.Timeout:
-            raise Exception(f"Request timed out after {self.timeout} seconds")
         except requests.exceptions.HTTPError as e:
             if e.response.status_code == 404:
                 return None
-            raise Exception(f"HTTP Error {e.response.status_code}: {e.response.text}")
+            self._handle_request_exceptions(e)
         except Exception as e:
-            raise Exception(f"Unexpected error: {str(e)}")
+            self._handle_request_exceptions(e)
     
     def update_work_item(self, work_item_id: int, updates: Dict[str, Any]) -> Dict[str, Any]:
         """Update a work item with specified field values"""
@@ -206,18 +203,8 @@ class AzureDevOpsClient:
             response.raise_for_status()
             return response.json()
             
-        except requests.exceptions.SSLError as e:
-            raise Exception(f"SSL Error: {str(e)}. Try installing/updating certificates or set AZURE_DEVOPS_DISABLE_SSL_VERIFY=true for debugging (insecure)")
-        except requests.exceptions.ProxyError as e:
-            raise Exception(f"Proxy Error: {str(e)}. Check your proxy settings")
-        except requests.exceptions.ConnectionError as e:
-            raise Exception(f"Connection Error: {str(e)}. Check your network connection")
-        except requests.exceptions.Timeout:
-            raise Exception(f"Request timed out after {self.timeout} seconds")
-        except requests.exceptions.HTTPError as e:
-            raise Exception(f"HTTP Error {e.response.status_code}: {e.response.text}")
         except Exception as e:
-            raise Exception(f"Unexpected error: {str(e)}")
+            self._handle_request_exceptions(e)
     
     def search_work_items_by_title(self, search_term: str, work_item_type: str = "User Story", top: int = 50) -> List[Dict[str, Any]]:
         """Search work items by title"""
@@ -270,18 +257,8 @@ class AzureDevOpsClient:
             details_result = details_response.json()
             return details_result.get("value", [])
             
-        except requests.exceptions.SSLError as e:
-            raise Exception(f"SSL Error: {str(e)}. Try installing/updating certificates or set AZURE_DEVOPS_DISABLE_SSL_VERIFY=true for debugging (insecure)")
-        except requests.exceptions.ProxyError as e:
-            raise Exception(f"Proxy Error: {str(e)}. Check your proxy settings")
-        except requests.exceptions.ConnectionError as e:
-            raise Exception(f"Connection Error: {str(e)}. Check your network connection")
-        except requests.exceptions.Timeout:
-            raise Exception(f"Request timed out after {self.timeout} seconds")
-        except requests.exceptions.HTTPError as e:
-            raise Exception(f"HTTP Error {e.response.status_code}: {e.response.text}")
         except Exception as e:
-            raise Exception(f"Unexpected error: {str(e)}")
+            self._handle_request_exceptions(e)
     
     def create_work_item(self, work_item_type: str, title: str, fields: Dict[str, Any]) -> Dict[str, Any]:
         """Create a new work item in Azure DevOps"""
@@ -328,18 +305,8 @@ class AzureDevOpsClient:
             response.raise_for_status()
             return response.json()
             
-        except requests.exceptions.SSLError as e:
-            raise Exception(f"SSL Error: {str(e)}. Try installing/updating certificates or set AZURE_DEVOPS_DISABLE_SSL_VERIFY=true for debugging (insecure)")
-        except requests.exceptions.ProxyError as e:
-            raise Exception(f"Proxy Error: {str(e)}. Check your proxy settings")
-        except requests.exceptions.ConnectionError as e:
-            raise Exception(f"Connection Error: {str(e)}. Check your network connection")
-        except requests.exceptions.Timeout:
-            raise Exception(f"Request timed out after {self.timeout} seconds")
-        except requests.exceptions.HTTPError as e:
-            raise Exception(f"HTTP Error {e.response.status_code}: {e.response.text}")
         except Exception as e:
-            raise Exception(f"Unexpected error: {str(e)}")
+            self._handle_request_exceptions(e)
 
     def get_work_items_by_state(self, state: str, work_item_type: str = "User Story", top: int = 100) -> List[Dict[str, Any]]:
         """Get work items filtered by state"""
@@ -392,15 +359,5 @@ class AzureDevOpsClient:
             details_result = details_response.json()
             return details_result.get("value", [])
             
-        except requests.exceptions.SSLError as e:
-            raise Exception(f"SSL Error: {str(e)}. Try installing/updating certificates or set AZURE_DEVOPS_DISABLE_SSL_VERIFY=true for debugging (insecure)")
-        except requests.exceptions.ProxyError as e:
-            raise Exception(f"Proxy Error: {str(e)}. Check your proxy settings")
-        except requests.exceptions.ConnectionError as e:
-            raise Exception(f"Connection Error: {str(e)}. Check your network connection")
-        except requests.exceptions.Timeout:
-            raise Exception(f"Request timed out after {self.timeout} seconds")
-        except requests.exceptions.HTTPError as e:
-            raise Exception(f"HTTP Error {e.response.status_code}: {e.response.text}")
         except Exception as e:
-            raise Exception(f"Unexpected error: {str(e)}")
+            self._handle_request_exceptions(e)

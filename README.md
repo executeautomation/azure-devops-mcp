@@ -1,75 +1,6 @@
-# Azure DevOps MCP Server - Project Structure
+# Azure DevOps MCP Server
 
-This project has been modularized for better maintainability and organization.
-
-## File Structure
-
-```
-azuredevopsmcp/
-├── main.py              # Main entry point - initializes server and registers tools
-├── config.py            # Configuration constants and settings
-├── models.py            # Pydantic data models (WorkItem, TestCase)
-├── client.py            # Azure DevOps API client class
-├── parsers.py           # Functions to parse API responses into models
-├── user_story_tools.py  # MCP tools for user story operations
-├── test_case_tools.py   # MCP tools for test case operations
-├── requirements.txt     # Python dependencies
-├── __init__.py          # Package initialization
-└── README.md            # This file
-```
-
-## Modules Overview
-
-### `main.py`
-- Entry point that initializes the FastMCP server
-- Creates the AzureDevOpsClient instance
-- Registers all tools from both tool modules
-- Runs the MCP server
-
-### `config.py`
-- Contains all configuration constants
-- Azure DevOps organization, project, and PAT settings
-- API versions and timeout settings
-- SSL and retry configurations
-
-### `models.py`
-- Pydantic models for data validation and serialization
-- `WorkItem`: Base model for Azure DevOps work items
-- `TestCase`: Extended model for test cases with additional fields
-
-### `client.py`
-- `AzureDevOpsClient`: Main API client class
-- Handles authentication, SSL configuration, and retries
-- Methods for all Azure DevOps API operations:
-  - `get_work_items()`: Fetch work items by type
-  - `get_work_item_by_id()`: Get specific work item
-  - `search_work_items_by_title()`: Search by title
-  - `get_work_items_by_state()`: Filter by state
-  - `update_work_item()`: Update work item fields
-  - `create_work_item()`: Create new work items
-
-### `parsers.py`
-- `parse_work_item()`: Converts API response to WorkItem model
-- `parse_test_case()`: Converts API response to TestCase model
-- Handles field extraction and data type conversion
-
-### `user_story_tools.py`
-- MCP tools specifically for user stories:
-  - `get_user_stories()`: List user stories
-  - `get_story_details()`: Get detailed story info
-  - `search_stories_by_title()`: Search stories
-  - `get_stories_by_state()`: Filter by state
-  - `update_story()`: Update story fields
-  - `create_user_story()`: Create new stories
-
-### `test_case_tools.py`
-- MCP tools specifically for test cases:
-  - `get_test_cases()`: List test cases
-  - `get_test_case_details()`: Get detailed test case info
-  - `search_test_cases_by_title()`: Search test cases
-  - `get_test_cases_by_state()`: Filter by state
-  - `update_test_case()`: Update test case fields
-  - `create_test_case()`: Create new test cases
+A modular Model Context Protocol (MCP) server for Azure DevOps integration, providing tools to manage user stories and test cases.
 
 ## Setup
 
@@ -94,7 +25,27 @@ AZURE_DEVOPS_ORG=your_org_name
 AZURE_DEVOPS_PROJECT=your_project_name
 ```
 
-### 3. Run the Server
+### 3. Configure MCP Server in Claude
+Add the following configuration to your Claude MCP settings (`mcp.json`):
+
+```json
+{
+  "AzureDevOps": {
+    "command": "python3",
+    "args": ["~/main.py"],
+    "env": {
+      "AZURE_DEVOPS_PAT": "your_personal_access_token_here",
+      "AZURE_DEVOPS_ORG": "your_org_name",
+      "AZURE_DEVOPS_PROJECT": "your_project_name",
+      "AZURE_DEVOPS_DISABLE_SSL_VERIFY": "false"
+    }
+  }
+}
+```
+
+**Note**: Replace the values with your actual Azure DevOps credentials and paths.
+
+### 4. Run the Server (Optional - for testing)
 ```bash
 python main.py
 ```
@@ -112,6 +63,26 @@ python3 main.py
 | `AZURE_DEVOPS_ORG` | ❌ No | `executeauto` | Azure DevOps organization name |
 | `AZURE_DEVOPS_PROJECT` | ❌ No | `Udemy` | Azure DevOps project name |
 | `AZURE_DEVOPS_DISABLE_SSL_VERIFY` | ❌ No | `false` | Disable SSL verification (debugging only) |
+
+**Note**: When using MCP configuration with Claude, you can set these environment variables directly in the `mcp.json` file instead of using a `.env` file.
+
+## Available Tools
+
+### User Story Tools
+- `get_user_stories()` - List user stories
+- `get_story_details()` - Get detailed story information
+- `search_stories_by_title()` - Search stories by title
+- `get_stories_by_state()` - Filter stories by state
+- `update_story()` - Update story fields
+- `create_user_story()` - Create new stories
+
+### Test Case Tools
+- `get_test_cases()` - List test cases
+- `get_test_case_details()` - Get detailed test case information
+- `search_test_cases_by_title()` - Search test cases by title
+- `get_test_cases_by_state()` - Filter test cases by state
+- `update_test_case()` - Update test case fields
+- `create_test_case()` - Create new test cases
 
 ## Benefits of Modularization
 
