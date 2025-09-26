@@ -61,13 +61,14 @@ azuredevopsmcp/
   - `create_user_story()` - Create new stories
 
 ### `test_case_tools.py` - **Test Case Tools** (257 lines)
-- 6 MCP tools for test case management:
+- 7 MCP tools for test case management:
   - `get_test_cases()` - List test cases
   - `get_test_case_details()` - Get test case details
   - `search_test_cases_by_title()` - Search functionality
   - `get_test_cases_by_state()` - Filter by state
   - `update_test_case()` - Update test case fields
   - `create_test_case()` - Create new test cases
+  - `delete_test_case()` - Delete test cases
 
 ## ✅ Benefits Achieved
 
