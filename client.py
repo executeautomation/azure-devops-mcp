@@ -361,3 +361,25 @@ class AzureDevOpsClient:
             
         except Exception as e:
             self._handle_request_exceptions(e)
+
+    def delete_work_item(self, work_item_id: int) -> bool:
+        """Delete a work item from Azure DevOps"""
+        
+        try:
+            url = f"{self.base_url}/{self.project}/_apis/wit/workitems/{work_item_id}"
+            params = {"api-version": API_VERSION}
+            
+            response = self.session.delete(url, params=params, timeout=self.timeout)
+            
+            if response.status_code == 404:
+                return False  # Work item not found
+            
+            response.raise_for_status()
+            return True  # Successfully deleted
+            
+        except requests.exceptions.HTTPError as e:
+            if e.response.status_code == 404:
+                return False
+            self._handle_request_exceptions(e)
+        except Exception as e:
+            self._handle_request_exceptions(e)

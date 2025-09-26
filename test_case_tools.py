@@ -292,3 +292,39 @@ def register_test_case_tools(mcp: FastMCP, client: AzureDevOpsClient):
             
         except Exception as e:
             return f"Error creating test case: {str(e)}"
+
+    @mcp.tool()
+    def delete_test_case(test_case_id: int) -> str:
+        """
+        Delete a test case from Azure DevOps
+
+        Args:
+            test_case_id: The ID of the test case to delete
+
+        Returns:
+            Success or error message
+        """
+        try:
+            # Verify the test case exists first
+            existing_item = client.get_work_item_by_id(test_case_id)
+            if existing_item is None:
+                return f"Test case with ID {test_case_id} not found"
+            
+            # Check if it's actually a test case
+            work_item_type = existing_item.get("fields", {}).get("System.WorkItemType", "")
+            if work_item_type != "Test Case":
+                return f"Work item {test_case_id} is not a test case (it's a {work_item_type})"
+            
+            # Get test case title for confirmation message
+            test_case_title = existing_item.get("fields", {}).get("System.Title", "Unknown")
+            
+            # Delete the test case
+            deletion_success = client.delete_work_item(test_case_id)
+            
+            if deletion_success:
+                return f"Successfully deleted test case {test_case_id}: '{test_case_title}'"
+            else:
+                return f"Failed to delete test case {test_case_id}. It may have already been deleted."
+            
+        except Exception as e:
+            return f"Error deleting test case {test_case_id}: {str(e)}"

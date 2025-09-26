@@ -83,6 +83,7 @@ python3 main.py
 - `get_test_cases_by_state()` - Filter test cases by state
 - `update_test_case()` - Update test case fields
 - `create_test_case()` - Create new test cases
+- `delete_test_case()` - Delete test cases
 
 ## Benefits of Modularization
 
@@ -133,6 +134,10 @@ python3 main.py
 - Create a new user story:
   - Tool: create_user_story
   - Args: {"title": "As a user, I want...", "areaPath": "Project\Area", "iterationPath": "Project\Sprint 1"}
+
+- Delete a test case:
+  - Tool: delete_test_case
+  - Args: {"test_case_id": 12345}
 
 ## Troubleshooting
 
